@@ -3,6 +3,7 @@ import path from 'path';
 import matter from 'gray-matter';
 import remark from 'remark';
 import html from 'remark-html';
+import { Settings } from 'http2';
 
 const postDirectory = path.join(process.cwd(), 'posts')
 
@@ -23,18 +24,16 @@ export function getSortedPostsData () {
     // Combine the data with the id
     return {
       id,
-      ...matterResult.data
+      ...(matterResult.data as { date: string; title: string })
     }
   })
 
   // Sort posts by data
-  return allPostsData.sort(({ date: a }, { data: b }) => {
-    if ( a < b ) {
+  return allPostsData.sort((a, b) => {
+    if ( a.date < b.date ) {
       return 1
-    } else if ( a > b ) {
-      return -1
     } else {
-      return 0
+      return -1
     }
   })
 }
@@ -64,7 +63,7 @@ export function getAllPostIds() {
   })
 }
 
-export async function getPostData(id) {
+export async function getPostData(id: string) {
   const fullPath = path.join(postDirectory, `${id}.md`);
   const fileContents = fs.readFileSync(fullPath, 'utf8');
 
@@ -80,6 +79,6 @@ export async function getPostData(id) {
   return {
     id,
     contentHtml,
-    ...matterResult.data
+    ...(matterResult.data as { date: string; title: string })
   }
 }
